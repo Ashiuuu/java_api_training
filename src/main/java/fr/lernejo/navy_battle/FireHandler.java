@@ -17,10 +17,12 @@ import java.util.stream.Collectors;
 public class FireHandler implements HttpHandler
 {
     private final String[] args;
+    private GameState game;
 
-    public FireHandler(String[] a)
+    public FireHandler(String[] a, GameState g)
     {
         this.args = a;
+        this.game = g;
     }
 
     @Override
@@ -31,8 +33,11 @@ public class FireHandler implements HttpHandler
             String cell = extract_cell(t.getRequestURI().getQuery());
             System.out.println("cell = " + cell);
 
-            String consequence = "miss";
-            boolean shipLeft = true;
+            int x = 'A' - cell.charAt(0);
+            int y = Integer.parseInt(cell.substring(1));
+
+            String consequence = ((this.game.check_friend_cell(x, y)) ? "hit" : "miss");
+            boolean shipLeft = this.game.check_ships_left();
 
             // send result
             HttpClient client = HttpClient.newHttpClient();
@@ -52,6 +57,7 @@ public class FireHandler implements HttpHandler
             {
                 System.out.println("Could not send");
             }
+            game.set_turn(true);
         }
         else if (t.getRequestMethod().equals("POST"))
         { // receiving answer to our GET request
@@ -61,6 +67,14 @@ public class FireHandler implements HttpHandler
 
             String consequence = jnode.get("consequence").asText();
             boolean shipLeft = jnode.get("shipLeft").asBoolean();
+
+            if (!shipLeft)
+            {
+                game.set_game_over(true);
+                return;
+            }
+
+            game.set_turn(false);
         }
         else
         {
