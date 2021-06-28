@@ -31,6 +31,7 @@ public class Launcher
                 HttpServer server = HttpServer.create(new InetSocketAddress(Integer.parseInt(args[0])), 0);
                 server.createContext("/ping", new PingHandler());
                 server.createContext("/api/game/start", new StartHandler());
+                server.createContext("/api/game/fire", new FireHandler(args));
                 server.setExecutor(executor);
                 server.start();
             } catch (IOException e) {
@@ -59,7 +60,7 @@ public class Launcher
         }
         else
         {
-
+            System.out.println("Usage : [HTTP Port] [Server Address]");
         }
     }
 }

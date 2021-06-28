@@ -31,10 +31,6 @@ public class StartHandler implements HttpHandler
                 os.write(body.getBytes());
             }
         }
-        else if (t.getRequestMethod().equals("GET"))
-        {
-
-        }
         else
         {
             String body = "Not Found";
