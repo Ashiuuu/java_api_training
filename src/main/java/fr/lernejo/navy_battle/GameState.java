@@ -4,7 +4,9 @@ public class GameState
 {
     private boolean turn; // is it our turn ?
     private boolean over;
-    private Board board;
+    private final Board board;
+
+    private String opponent_address;
 
     public GameState()
     {
@@ -20,12 +22,12 @@ public class GameState
 
     public void set_game_over(boolean o)
     {
-        this.over = o;
+        this.over = board.shipLeft();
     }
 
-    public void set_turn(boolean n)
+    public void set_turn(boolean t)
     {
-        this.turn = n;
+        this.turn = t;
     }
 
     public boolean get_turn()
@@ -33,26 +35,36 @@ public class GameState
         return this.turn;
     }
 
-    public boolean check_friend_cell(int x, int y)
-    {
-        return this.board.is_cell_friend_ship(x, y);
+    public boolean check_ships_left() {
+        return board.shipLeft();
     }
 
-    public boolean check_ships_left()
-    {
-        for (int x = 0; x < 10; x++)
-        {
-            for (int y = 0; y < 10; y++)
-            {
-                if (this.board.is_cell_friend_ship(x, y))
-                    return false;
-            }
+    public void fireAtCell(BoardPosition p, boolean enemy) {
+        // we fire at cell with GET request, update result using this method
+        this.board.updateCell(p.getX(), p.getY(), enemy);
+    }
+
+    public String takeFireFromEnemy(int x, int y) {
+        Board.FireResult result = this.board.takeFireFromEnemy(new BoardPosition(x, y));
+        if (result.equals(Board.FireResult.HIT)) {
+            return "hit";
         }
-        return true;
+        else if (result.equals(Board.FireResult.SUNK)) {
+            return "sunk";
+        }
+        else
+            return "miss";
     }
 
-    public void fire_at_cell(int x, int y)
-    {
+    public void setOpponentAddress(String o) {
+        this.opponent_address = o;
+    }
 
+    public String getOpponentAddress() {
+        return this.opponent_address;
+    }
+
+    public Board.State getPosState(int x, int y) {
+        return this.board.getCellState(x, y);
     }
 }

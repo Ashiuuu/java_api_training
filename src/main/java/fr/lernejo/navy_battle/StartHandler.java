@@ -9,6 +9,12 @@ import java.io.*;
 
 public class StartHandler implements HttpHandler
 {
+    private GameState game;
+
+    public StartHandler(GameState g) {
+        this.game = g;
+    }
+
     @Override
     public void handle(HttpExchange t) throws IOException
     {
@@ -22,6 +28,7 @@ public class StartHandler implements HttpHandler
             String message = jnode.get("message").asText();
 
             System.out.println("[" + id + "](" + url + "): " + message);
+            game.setOpponentAddress(url);
             // TODO : add check to see if request is good
 
             String body = "Accepted";

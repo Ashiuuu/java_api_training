@@ -1,63 +1,62 @@
 package fr.lernejo.navy_battle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Board
 {
-    enum State {FREE, FIRED, FRIEND_SHIP, ENEMY_SHIP};
+    enum State {FREE, FIRED, HIT};
+    enum FireResult {MISS, HIT, SUNK};
 
-    private State[][][] cells; // cells[1][][] is our ships, cells[0][][] is enemy ships
+    private State[][] cells;
+    private List<Ship> ships = new ArrayList<>();
 
     public Board()
     {
-        this.cells = new State[2][10][10];
-        for (int i = 0; i < 2; i++)
+        this.cells = new State[10][10];
+        for (int j = 0; j < 10; j++)
         {
-            for (int j = 0; j < 10; j++)
+            for (int k = 0; k < 10; k++)
             {
-                for (int k = 0; k < 10; k++)
-                {
-                    this.cells[i][j][k] = State.FREE;
-                }
+                this.cells[j][k] = State.FREE;
             }
         }
-        place_ships();
+        placeShips();
     }
 
-    private void place_ships()
+    private void placeShips()
     {
-        // 5 cells ship
-        this.cells[1][0][0] = State.FRIEND_SHIP;
-        this.cells[1][0][1] = State.FRIEND_SHIP;
-        this.cells[1][0][2] = State.FRIEND_SHIP;
-        this.cells[1][0][3] = State.FRIEND_SHIP;
-        this.cells[1][0][4] = State.FRIEND_SHIP;
-
-        // 4 cells ship
-        this.cells[1][9][9] = State.FRIEND_SHIP;
-        this.cells[1][8][9] = State.FRIEND_SHIP;
-        this.cells[1][7][9] = State.FRIEND_SHIP;
-        this.cells[1][6][9] = State.FRIEND_SHIP;
-
-        // 3 cells ships
-        this.cells[1][5][5] = State.FRIEND_SHIP;
-        this.cells[1][4][5] = State.FRIEND_SHIP;
-        this.cells[1][3][5] = State.FRIEND_SHIP;
-
-        this.cells[1][6][6] = State.FRIEND_SHIP;
-        this.cells[1][6][7] = State.FRIEND_SHIP;
-        this.cells[1][6][8] = State.FRIEND_SHIP;
-
-        // 2 cells ship
-        this.cells[1][1][1] = State.FRIEND_SHIP;
-        this.cells[1][1][2] = State.FRIEND_SHIP;
+        this.ships.add(new Ship(0, 0, 5, Ship.Orientation.VERTICAL));
+        this.ships.add(new Ship(6, 9, 4, Ship.Orientation.HORIZONTAL));
+        this.ships.add(new Ship(3,5, 3, Ship.Orientation.HORIZONTAL));
+        this.ships.add(new Ship(6, 6, 3, Ship.Orientation.VERTICAL));
+        this.ships.add(new Ship(1, 1, 2, Ship.Orientation.VERTICAL));
     }
 
-    public boolean is_cell_friend_ship(int x, int y)
-    {
-        return this.cells[1][x][y] == State.FRIEND_SHIP;
+    public FireResult takeFireFromEnemy(BoardPosition p) {
+        // returns true if ship is sunken
+        for (Ship s: this.ships) {
+            if (s.shootAtShip(p)) {
+                if (s.isShipSunk()) {
+                    this.ships.remove(s);
+                    return FireResult.SUNK;
+                }
+                return FireResult.HIT;
+            }
+        }
+        return FireResult.MISS;
     }
 
-    public void fire_at_cell(int x, int y, boolean enemy)
-    { // should be used only by player attacking to note the result
-        this.cells[0][x][y] = (enemy ? State.ENEMY_SHIP : State.FIRED);
+    public boolean shipLeft() {
+        return this.ships.isEmpty();
+    }
+
+    public void updateCell(int x, int y, boolean enemy) {
+        // should be used only by player attacking to note the result
+        this.cells[x][y] = (enemy ? State.HIT : State.FIRED);
+    }
+
+    public State getCellState(int x, int y) {
+        return this.cells[x][y];
     }
 }
