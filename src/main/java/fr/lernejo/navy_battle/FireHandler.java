@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class FireHandler implements HttpHandler
@@ -22,22 +23,26 @@ public class FireHandler implements HttpHandler
         if (t.getRequestMethod().equals("GET"))
         { // receiving update to game
             String cell = extract_cell(t.getRequestURI().getQuery());
-            System.out.println("cell = " + cell);
 
-            int x = 'A' - cell.charAt(0);
-            int y = Integer.parseInt(cell.substring(1));
-            System.out.println("x = " + x + "   y = " + y);
+            int x = cell.charAt(0) - 'A';
+            int y = Integer.parseInt(cell.substring(1)) - 1;
 
             String consequence = this.game.takeFireFromEnemy(x, y);
             boolean shipLeft = this.game.check_ships_left();
+            System.out.println("[FP] Cell " + cell + " has been " + consequence);
 
-            String response = "{\"consequence\": " + consequence + ", \"shipLeft\": " + shipLeft + "}";
+            String response = "{\"consequence\": \"" + consequence + "\", \"shipLeft\": " + shipLeft + "}";
+            t.getResponseHeaders().set("Content-Type", "application/json");
             t.sendResponseHeaders(200, response.length());
             try (OutputStream os = t.getResponseBody())
             {
                 os.write(response.getBytes());
             }
             game.set_turn(true);
+            game.check_ships_left();
+            System.out.println("[FP] Game over = " + game.is_game_over());
+            if (!game.is_game_over())
+                Launcher.runFireProcedure(game);
         }
         else
         {

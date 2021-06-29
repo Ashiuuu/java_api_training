@@ -4,7 +4,7 @@ public class GameState
 {
     private boolean turn; // is it our turn ?
     private boolean over;
-    private final Board board;
+    private Board board;
 
     private String opponent_address;
 
@@ -15,6 +15,12 @@ public class GameState
         this.board = new Board();
     }
 
+    public void newGame() {
+        this.board = new Board();
+        this.over = false;
+        this.turn = false;
+    }
+
     public boolean is_game_over()
     {
         return this.over;
@@ -22,7 +28,7 @@ public class GameState
 
     public void set_game_over(boolean o)
     {
-        this.over = board.shipLeft();
+        this.over = o;
     }
 
     public void set_turn(boolean t)
@@ -36,7 +42,9 @@ public class GameState
     }
 
     public boolean check_ships_left() {
-        return board.shipLeft();
+        boolean check = board.shipLeft();
+        this.over = !check;
+        return check;
     }
 
     public void fireAtCell(BoardPosition p, boolean enemy) {

@@ -59,33 +59,44 @@ public class Launcher
             // while the game is not over
             while (!game.is_game_over())
             {
+                if (game.is_game_over())
+                    System.out.println("Should quit here");
                 if (game.get_turn()) // is it our turn ?
                 {
-                    // select a random unfired cell
-                    Random random = new Random();
-                    int x;
-                    int y;
-                    do {
-                        x = random.nextInt(10);
-                        y = random.nextInt(10);
-                    } while (!game.getPosState(x, y).equals(Board.State.FREE));
-                    BoardPosition random_pos = new BoardPosition(x, y);
-
                     // send get request to opponent using api
-                    runFireProcedure(game, random_pos);
+                    runFireProcedure(game);
                 }
             }
+            System.out.println("Game is Over!");
         } catch (IOException e) {
             System.out.println("Exception occurred");
         }
     }
 
-    public static void runFireProcedure(GameState game, BoardPosition pos) {
+    public static void startServer(GameState game) {
+
+    }
+
+    public static BoardPosition findRandomPos(GameState game) {
+        Random random = new Random();
+        int x;
+        int y;
+        do {
+            x = random.nextInt(10);
+            y = random.nextInt(10);
+        } while (!game.getPosState(x, y).equals(Board.State.FREE));
+        return new BoardPosition(x, y);
+    }
+
+    public static void runFireProcedure(GameState game) {
         // send GET request to opponent
+        System.out.println("Fire in the hole !");
         try {
             HttpClient client = HttpClient.newHttpClient();
+            BoardPosition pos = findRandomPos(game);
+            String cellAlpha = translatePosToAlpha(pos);
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(game.getOpponentAddress() + "/api/game/fire?cell="))
+                .uri(URI.create(game.getOpponentAddress() + "/api/game/fire?cell=" + cellAlpha))
                 .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -95,11 +106,17 @@ public class Launcher
             // update game
             String consequence = jnode.get("consequence").asText();
             boolean shipLeft = jnode.get("shipLeft").asBoolean();
-            game.set_game_over(shipLeft);
+            System.out.println("[PROCEDURE] Cell " + cellAlpha + " got " + consequence + "; shipLeft = " + shipLeft);
+            if (!shipLeft)
+                game.set_game_over(true);
             game.fireAtCell(pos, consequence.equals("hit") || consequence.equals("sunk"));
             game.set_turn(false); // we just played, not our turn anymore
         } catch (Exception e) {
-            System.out.println("Error sending request");
+            System.out.println("Exception occurred : " + e.toString());
         }
+    }
+
+    public static String translatePosToAlpha(BoardPosition p) {
+        return Character.toString('A' + p.getX()) + (p.getY() + 1);
     }
 }

@@ -48,7 +48,7 @@ public class Board
     }
 
     public boolean shipLeft() {
-        return this.ships.isEmpty();
+        return !this.ships.isEmpty();
     }
 
     public void updateCell(int x, int y, boolean enemy) {

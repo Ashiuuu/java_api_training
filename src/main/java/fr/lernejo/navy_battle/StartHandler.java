@@ -28,6 +28,7 @@ public class StartHandler implements HttpHandler
             String message = jnode.get("message").asText();
 
             System.out.println("[" + id + "](" + url + "): " + message);
+            game.newGame();
             game.setOpponentAddress(url);
             // TODO : add check to see if request is good
 
