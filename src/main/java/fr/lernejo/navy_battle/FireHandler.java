@@ -55,7 +55,7 @@ public class FireHandler implements HttpHandler
         }
     }
 
-    public String extract_cell(String query)
+    public static String extract_cell(String query)
     {
         return Arrays.stream(query.split("&"))
             .filter(p -> p.startsWith("cell="))

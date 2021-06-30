@@ -18,9 +18,14 @@ public class BoardPosition
             return false;
 
         final BoardPosition other = (BoardPosition) o;
-        return other.x == this.x || other.y == this.y;
+        return other.x == this.x && other.y == this.y;
     }
 
     public int getX() { return this.x; }
     public int getY() { return this.y; }
+
+    @Override
+    public String toString() {
+        return "(" + this.x + "," + this.y + ")";
+    }
 }

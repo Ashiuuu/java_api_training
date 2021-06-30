@@ -34,7 +34,6 @@ public class Board
     }
 
     public FireResult takeFireFromEnemy(BoardPosition p) {
-        // returns true if ship is sunken
         for (Ship s: this.ships) {
             if (s.shootAtShip(p)) {
                 if (s.isShipSunk()) {

@@ -9,7 +9,7 @@ import java.io.*;
 
 public class StartHandler implements HttpHandler
 {
-    private GameState game;
+    private final GameState game;
 
     public StartHandler(GameState g) {
         this.game = g;
@@ -50,7 +50,7 @@ public class StartHandler implements HttpHandler
         }
     }
 
-    public String stream_to_string(InputStream s) throws IOException
+    public static String stream_to_string(InputStream s) throws IOException
     {
         InputStreamReader isr = new InputStreamReader(s, "utf-8");
         BufferedReader br = new BufferedReader(isr);

@@ -29,8 +29,4 @@ public class Ship {
     public boolean isShipSunk() {
         return this.occupied.isEmpty();
     }
-
-    public boolean isPosPartOfShip(BoardPosition p) {
-        return this.occupied.contains(p);
-    }
 }
