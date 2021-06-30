@@ -26,12 +26,11 @@ public class Launcher
         try
         {
             GameState game = new GameState();
-            ExecutorService executor = Executors.newFixedThreadPool(1);
             HttpServer server = HttpServer.create(new InetSocketAddress(Integer.parseInt(args[0])), 0);
             server.createContext("/ping", new PingHandler());
             server.createContext("/api/game/start", new StartHandler(game));
             server.createContext("/api/game/fire", new FireHandler(game));
-            server.setExecutor(executor);
+            server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
 
             if (args.length == 2)
@@ -71,10 +70,6 @@ public class Launcher
         } catch (IOException e) {
             System.out.println("Exception occurred");
         }
-    }
-
-    public static void startServer(GameState game) {
-
     }
 
     public static BoardPosition findRandomPos(GameState game) {
