@@ -9,8 +9,14 @@ class BoardPositionTest {
         BoardPosition test1 = new BoardPosition(0,0);
         BoardPosition test2 = new BoardPosition(0,0);
         BoardPosition test3 = new BoardPosition(1,1);
-        Assertions.assertEquals(test1.equals(test2), true);
-        Assertions.assertEquals(test1.equals(test3), false);
+        Assertions.assertEquals(test1, test2);
+        Assertions.assertNotEquals(test1, test3);
+    }
+
+    @Test
+    public void emptyEqualsTest() {
+        BoardPosition test = new BoardPosition(0,0);
+        Assertions.assertNotEquals(null, test);
     }
 
     @Test

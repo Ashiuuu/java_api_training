@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Ship {
-    enum Orientation {VERTICAL, HORIZONTAL};
+    enum Orientation {VERTICAL, HORIZONTAL}
     private final List<BoardPosition> occupied = new ArrayList<>();
 
     public Ship(int x, int y, int size, Orientation o) {

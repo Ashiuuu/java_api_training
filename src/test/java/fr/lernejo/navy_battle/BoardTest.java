@@ -15,7 +15,7 @@ class BoardTest {
     @Test
     public void shipLeftTest() {
         Board testBoard = new Board();
-        Assertions.assertEquals(testBoard.shipLeft(), true);
+        Assertions.assertTrue(testBoard.shipLeft());
     }
 
     @Test

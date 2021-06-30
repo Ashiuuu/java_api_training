@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class FireHandler implements HttpHandler
@@ -18,20 +17,14 @@ public class FireHandler implements HttpHandler
     }
 
     @Override
-    public void handle(HttpExchange t) throws IOException
-    {
-        if (t.getRequestMethod().equals("GET"))
-        { // receiving update to game
+    public void handle(HttpExchange t) throws IOException {
+        if (t.getRequestMethod().equals("GET")) { // receiving update to game
             String cell = extract_cell(t.getRequestURI().getQuery());
 
-            int x = cell.charAt(0) - 'A';
-            int y = Integer.parseInt(cell.substring(1)) - 1;
-
-            String consequence = this.game.takeFireFromEnemy(x, y);
-            boolean shipLeft = this.game.check_ships_left();
+            String consequence = this.game.takeFireFromEnemy(cell.charAt(0) - 'A', Integer.parseInt(cell.substring(1)) - 1);
             System.out.println("[FP] Cell " + cell + " has been " + consequence);
 
-            String response = "{\"consequence\": \"" + consequence + "\", \"shipLeft\": " + shipLeft + "}";
+            String response = "{\"consequence\": \"" + consequence + "\", \"shipLeft\": " + this.game.check_ships_left() + "}";
             t.getResponseHeaders().set("Content-Type", "application/json");
             t.sendResponseHeaders(200, response.length());
             try (OutputStream os = t.getResponseBody())
@@ -45,14 +38,7 @@ public class FireHandler implements HttpHandler
                 Launcher.runFireProcedure(game);
         }
         else
-        {
-            String body = "Not Found";
-            t.sendResponseHeaders(404, body.length());
-            try (OutputStream os = t.getResponseBody())
-            {
-                os.write(body.getBytes());
-            }
-        }
+            Launcher.sendResponse404(t);
     }
 
     public static String extract_cell(String query)

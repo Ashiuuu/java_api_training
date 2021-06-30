@@ -2,15 +2,16 @@ package fr.lernejo.navy_battle;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Launcher
@@ -107,11 +108,20 @@ public class Launcher
             game.fireAtCell(pos, consequence.equals("hit") || consequence.equals("sunk"));
             game.set_turn(false); // we just played, not our turn anymore
         } catch (Exception e) {
-            System.out.println("Exception occurred : " + e.toString());
+            System.out.println("Exception occurred : " + e);
         }
     }
 
     public static String translatePosToAlpha(BoardPosition p) {
         return Character.toString('A' + p.getX()) + (p.getY() + 1);
+    }
+
+    public static void sendResponse404(HttpExchange exchange) throws IOException {
+        String body = "Not Found";
+        exchange.sendResponseHeaders(404, body.length());
+        try (OutputStream os = exchange.getResponseBody())
+        {
+            os.write(body.getBytes());
+        }
     }
 }

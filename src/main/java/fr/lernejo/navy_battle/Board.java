@@ -5,11 +5,11 @@ import java.util.List;
 
 public class Board
 {
-    enum State {FREE, FIRED, HIT};
-    enum FireResult {MISS, HIT, SUNK};
+    enum State {FREE, FIRED, HIT}
+    enum FireResult {MISS, HIT, SUNK}
 
-    private State[][] cells;
-    private List<Ship> ships = new ArrayList<>();
+    private final State[][] cells;
+    private final List<Ship> ships = new ArrayList<>();
 
     public Board()
     {
