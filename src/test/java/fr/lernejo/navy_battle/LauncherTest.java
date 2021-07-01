@@ -1,6 +1,7 @@
 package fr.lernejo.navy_battle;
 
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsExchange;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ class LauncherTest {
     public void pingTest() {
         try {
             GameState game = new GameState("http://localhost:9876");
-            Launcher.setupServer(game);
+            HttpServer server = Launcher.setupServer(game);
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -30,6 +31,7 @@ class LauncherTest {
                 .build();
             HttpResponse response = client.send(request, HttpResponse.BodyHandlers.ofString());
             Assertions.assertEquals(response.body(), "OK");
+            server.stop(1);
         } catch (Exception e) {
             System.out.println("Exception occurred during test : " + e);
         }

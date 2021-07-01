@@ -32,7 +32,7 @@ public class Launcher
         System.out.println("Game is Over!");
     }
 
-    public static void setupServer(GameState game) {
+    public static HttpServer setupServer(GameState game) {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(game.getPort()), 0);
             server.createContext("/ping", new PingHandler());
@@ -40,8 +40,10 @@ public class Launcher
             server.createContext("/api/game/fire", new FireHandler(game));
             server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
+            return server;
         } catch (Exception e) {
             System.out.println("Exception occurred :" + e);
+            return null;
         }
     }
 

@@ -20,12 +20,17 @@ class GameStateTest {
     public void checkShipTest() {
         GameState game = new GameState("");
         Assertions.assertTrue(game.check_ships_left());
+        Assertions.assertFalse(game.is_game_over());
     }
 
     @Test
     public void takeFireTest() {
         GameState game = new GameState("");
-        Assertions.assertEquals(game.takeFireFromEnemy(0, 0), "hit");
+        Assertions.assertEquals(game.takeFireFromEnemy(1, 1), "hit");
+        Assertions.assertEquals(game.takeFireFromEnemy(1, 2), "sunk");
+        Assertions.assertEquals(game.takeFireFromEnemy(0, 9), "miss");
+        game.set_game_over(true);
+        Assertions.assertEquals(game.takeFireFromEnemy(9,9), "");
     }
 
     @Test
@@ -39,6 +44,8 @@ class GameStateTest {
     public void getPosTest() {
         GameState game = new GameState("");
         Assertions.assertEquals(game.getPosState(0,0), Board.State.FREE);
+        game.set_game_over(true);
+        Assertions.assertNull(game.getPosState(0, 0));
     }
 
     @Test
@@ -79,5 +86,8 @@ class GameStateTest {
         GameState game = new GameState("test");
         game.fireAtCell(new BoardPosition(0,0), false);
         Assertions.assertEquals(game.getPosState(0,0), Board.State.FIRED);
+        game.set_game_over(true);
+        game.fireAtCell(new BoardPosition(0, 9), true);
+        Assertions.assertNotEquals(game.getPosState(0,9), Board.State.HIT);
     }
 }

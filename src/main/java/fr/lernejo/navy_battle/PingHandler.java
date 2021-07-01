@@ -9,13 +9,7 @@ import java.io.OutputStream;
 class PingHandler implements HttpHandler
 {
     @Override
-    public void handle(HttpExchange t) throws IOException
-    {
-        String response = "OK";
-        t.sendResponseHeaders(200, response.length());
-        try (OutputStream os = t.getResponseBody())
-        {
-            os.write(response.getBytes());
-        }
+    public void handle(HttpExchange t) throws IOException {
+        Utilities.sendResponse(t, 200, "OK");
     }
 }
