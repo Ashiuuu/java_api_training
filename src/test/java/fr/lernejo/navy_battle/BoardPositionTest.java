@@ -20,9 +20,21 @@ class BoardPositionTest {
     }
 
     @Test
-    public void getTest() {
-        BoardPosition pos = new BoardPosition(0, 10);
-        Assertions.assertEquals(pos.getX(), 0);
+    public void wrongEqualsTest() {
+        BoardPosition test = new BoardPosition(0, 0);
+        String testString = "salut";
+        Assertions.assertNotEquals(testString, test);
+    }
+
+    @Test
+    public void getXTest() {
+        BoardPosition pos = new BoardPosition(5, 10);
+        Assertions.assertEquals(pos.getX(), 5);
+    }
+
+    @Test
+    public void getYTest() {
+        BoardPosition pos = new BoardPosition(5, 10);
         Assertions.assertEquals(pos.getY(), 10);
     }
 

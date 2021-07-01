@@ -16,60 +16,51 @@ import java.util.concurrent.Executors;
 
 public class Launcher
 {
-    public static void main(String[] args)
-    {
-        if (args.length == 0 || args.length >= 3)
-        {
+    public static void main(String[] args) {
+        if (args.length == 0 || args.length >= 3) {
             System.out.println("Usage : {HTTP Port} [Server Address]");
             return;
         }
+        GameState game = new GameState("http://localhost:" + Integer.parseInt(args[0]));
+        Launcher.setupServer(game);
+        if (args.length == 2) {
+            Launcher.setupClient(game, args);
+        }
+        while (!game.is_game_over()) {
+            if (game.get_turn()) {
+                runFireProcedure(game); } }
+        System.out.println("Game is Over!");
+    }
 
-        try
-        {
-            GameState game = new GameState();
-            HttpServer server = HttpServer.create(new InetSocketAddress(Integer.parseInt(args[0])), 0);
+    public static void setupServer(GameState game) {
+        try {
+            HttpServer server = HttpServer.create(new InetSocketAddress(game.getPort()), 0);
             server.createContext("/ping", new PingHandler());
             server.createContext("/api/game/start", new StartHandler(game));
             server.createContext("/api/game/fire", new FireHandler(game));
             server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
+        } catch (Exception e) {
+            System.out.println("Exception occurred :" + e);
+        }
+    }
 
-            if (args.length == 2)
-            {
-                game.set_turn(true); // the client starts the game
-                game.setOpponentAddress(args[1]);
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(args[1] + "/api/game/start"))
-                    .setHeader("Accept", "application/json")
-                    .setHeader("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"id\":\"1\", \"url\":\"http://localhost:" + args[0] + "\", \"message\":\"hello\"}"))
-                    .build();
-                try
-                {
-                    client.send(request, HttpResponse.BodyHandlers.ofString());
-                }
-                catch(Exception e)
-                {
-                    System.out.println("Could not send");
-                    return;
-                }
-            }
-
-            // while the game is not over
-            while (!game.is_game_over())
-            {
-                if (game.is_game_over())
-                    System.out.println("Should quit here");
-                if (game.get_turn()) // is it our turn ?
-                {
-                    // send get request to opponent using api
-                    runFireProcedure(game);
-                }
-            }
-            System.out.println("Game is Over!");
-        } catch (IOException e) {
-            System.out.println("Exception occurred");
+    public static void setupClient(GameState game, String[] args) {
+        game.set_turn(true); // the client starts the game
+        game.setOpponentAddress(args[1]);
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(args[1] + "/api/game/start"))
+            .setHeader("Accept", "application/json")
+            .setHeader("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString("{\"id\":\"1\", \"url\":\"http://localhost:" + args[0] + "\", \"message\":\"hello\"}"))
+            .build();
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+        }
+        catch(Exception e) {
+            System.out.println("Could not send");
+            return;
         }
     }
 
@@ -85,43 +76,20 @@ public class Launcher
     }
 
     public static void runFireProcedure(GameState game) {
-        // send GET request to opponent
-        System.out.println("Fire in the hole !");
         try {
             HttpClient client = HttpClient.newHttpClient();
             BoardPosition pos = findRandomPos(game);
-            String cellAlpha = translatePosToAlpha(pos);
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(game.getOpponentAddress() + "/api/game/fire?cell=" + cellAlpha))
-                .build();
-
+            String cellAlpha = Utilities.translatePosToAlpha(pos);
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(game.getOpponentAddress() + "/api/game/fire?cell=" + cellAlpha)).build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jnode = mapper.readTree(response.body());
-
-            // update game
             String consequence = jnode.get("consequence").asText();
             boolean shipLeft = jnode.get("shipLeft").asBoolean();
             System.out.println("[PROCEDURE] Cell " + cellAlpha + " got " + consequence + "; shipLeft = " + shipLeft);
-            if (!shipLeft)
-                game.set_game_over(true);
-            game.fireAtCell(pos, consequence.equals("hit") || consequence.equals("sunk"));
-            game.set_turn(false); // we just played, not our turn anymore
-        } catch (Exception e) {
-            System.out.println("Exception occurred : " + e);
-        }
-    }
-
-    public static String translatePosToAlpha(BoardPosition p) {
-        return Character.toString('A' + p.getX()) + (p.getY() + 1);
-    }
-
-    public static void sendResponse404(HttpExchange exchange) throws IOException {
-        String body = "Not Found";
-        exchange.sendResponseHeaders(404, body.length());
-        try (OutputStream os = exchange.getResponseBody())
-        {
-            os.write(body.getBytes());
-        }
+            if (!shipLeft) {
+                game.set_game_over(true); return; }
+            game.fireAtCell(pos, consequence.equals("hit") || consequence.equals("sunk")).set_turn(false);
+        } catch (Exception e) { System.out.println("Exception occurred : " + e); }
     }
 }

@@ -20,25 +20,16 @@ public class FireHandler implements HttpHandler
     public void handle(HttpExchange t) throws IOException {
         if (t.getRequestMethod().equals("GET")) { // receiving update to game
             String cell = extract_cell(t.getRequestURI().getQuery());
-
             String consequence = this.game.takeFireFromEnemy(cell.charAt(0) - 'A', Integer.parseInt(cell.substring(1)) - 1);
             System.out.println("[FP] Cell " + cell + " has been " + consequence);
-
             String response = "{\"consequence\": \"" + consequence + "\", \"shipLeft\": " + this.game.check_ships_left() + "}";
             t.getResponseHeaders().set("Content-Type", "application/json");
-            t.sendResponseHeaders(200, response.length());
-            try (OutputStream os = t.getResponseBody())
-            {
-                os.write(response.getBytes());
-            }
-            game.set_turn(true);
-            game.check_ships_left();
-            System.out.println("[FP] Game over = " + game.is_game_over());
-            if (!game.is_game_over())
+            Utilities.sendResponse(t, 200, response);
+            if (game.set_turn(true).check_ships_left() && !game.is_game_over())
                 Launcher.runFireProcedure(game);
         }
         else
-            Launcher.sendResponse404(t);
+            Utilities.sendResponse(t, 404, "Not Found");
     }
 
     public static String extract_cell(String query)
