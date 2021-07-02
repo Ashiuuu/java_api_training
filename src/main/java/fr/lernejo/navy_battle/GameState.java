@@ -2,58 +2,54 @@ package fr.lernejo.navy_battle;
 
 public class GameState
 {
-    protected boolean turn; // is it our turn ?
-    protected boolean over;
-    protected Board board;
+    private final boolean[] turn = {false}; // is it our turn ?
+    private final boolean[] over = {false};
+    private final Board[] board = {null};
 
-    protected String opponent_address;
+    private final String[] opponent_address = {""};
     private final String own_address;
 
     public GameState(String address)
     {
-        this.turn = false;
-        this.over = false;
-        this.board = new Board();
+        this.board[0] = new Board();
         this.own_address = address;
     }
 
     public GameState newGame() {
-        this.board = new Board();
-        this.over = false;
-        this.turn = false;
+        this.board[0] = new Board();
+        this.over[0] = false;
+        this.turn[0] = false;
         return this;
     }
 
     public boolean is_game_over()
     {
-        return this.over;
+        return this.over[0];
     }
 
-    public GameState set_game_over(boolean o) { this.over = o; return this; }
+    public GameState set_game_over(boolean o) { this.over[0] = o; return this; }
 
-    public GameState set_turn(boolean t) { this.turn = t; return this; }
+    public GameState set_turn(boolean t) { this.turn[0] = t; return this; }
 
     public boolean get_turn()
     {
-        return this.turn;
+        return this.turn[0];
     }
 
     public boolean check_ships_left() {
-        boolean check = board.shipLeft();
-        this.over = !check;
-        return check;
+        return board[0].shipLeft();
     }
 
     public GameState fireAtCell(BoardPosition p, boolean enemy) {
         // we fire at cell with GET request, update result using this method
         if (!this.is_game_over())
-            this.board.updateCell(p.getX(), p.getY(), enemy);
+            this.board[0].updateCell(p.getX(), p.getY(), enemy);
         return this;
     }
 
     public String takeFireFromEnemy(int x, int y) {
         if (!this.is_game_over()) {
-            Board.FireResult result = this.board.takeFireFromEnemy(new BoardPosition(x, y));
+            Board.FireResult result = this.board[0].takeFireFromEnemy(new BoardPosition(x, y));
             if (result.equals(Board.FireResult.HIT)) {
                 return "hit";
             } else if (result.equals(Board.FireResult.SUNK)) {
@@ -65,16 +61,16 @@ public class GameState
     }
 
     public void setOpponentAddress(String o) {
-        this.opponent_address = o;
+        this.opponent_address[0] = o;
     }
 
     public String getOpponentAddress() {
-        return this.opponent_address;
+        return this.opponent_address[0];
     }
 
     public Board.State getPosState(int x, int y) {
         if (!this.is_game_over())
-            return this.board.getCellState(x, y);
+            return this.board[0].getCellState(x, y);
         return null;
     }
 
