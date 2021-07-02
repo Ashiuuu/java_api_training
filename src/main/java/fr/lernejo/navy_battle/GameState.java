@@ -2,11 +2,11 @@ package fr.lernejo.navy_battle;
 
 public class GameState
 {
-    private boolean turn; // is it our turn ?
-    private boolean over;
-    private Board board;
+    protected boolean turn; // is it our turn ?
+    protected boolean over;
+    protected Board board;
 
-    private String opponent_address;
+    protected String opponent_address;
     private final String own_address;
 
     public GameState(String address)
