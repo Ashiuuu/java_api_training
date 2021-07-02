@@ -2,14 +2,9 @@ package fr.lernejo.navy_battle;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.*;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -48,21 +43,12 @@ public class Launcher
     }
 
     public static void setupClient(GameState game, String[] args) {
-        game.set_turn(true); // the client starts the game
-        game.setOpponentAddress(args[1]);
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(args[1] + "/api/game/start"))
-            .setHeader("Accept", "application/json")
-            .setHeader("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString("{\"id\":\"1\", \"url\":\"http://localhost:" + args[0] + "\", \"message\":\"hello\"}"))
-            .build();
         try {
-            client.send(request, HttpResponse.BodyHandlers.ofString());
-        }
-        catch(Exception e) {
-            System.out.println("Could not send");
-            return;
+            game.set_turn(true); // the client starts the game
+            game.setOpponentAddress(args[1]);
+            Utilities.sendPostRequest(args[1] + "/api/game/start", "{\"id\":\"1\", \"url\":\"http://localhost:" + args[0] + "\", \"message\":\"hello\"}");
+        } catch(Exception e) {
+            System.out.println("Could not send game start request : " + e);
         }
     }
 
@@ -79,11 +65,9 @@ public class Launcher
 
     public static void runFireProcedure(GameState game) {
         try {
-            HttpClient client = HttpClient.newHttpClient();
             BoardPosition pos = findRandomPos(game);
             String cellAlpha = Utilities.translatePosToAlpha(pos);
-            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(game.getOpponentAddress() + "/api/game/fire?cell=" + cellAlpha)).build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = Utilities.sendGetRequest(game.getOpponentAddress() + "/api/game/fire?cell=" + cellAlpha);
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jnode = mapper.readTree(response.body());
             String consequence = jnode.get("consequence").asText();
@@ -92,6 +76,6 @@ public class Launcher
             if (!shipLeft) {
                 game.set_game_over(true); return; }
             game.fireAtCell(pos, consequence.equals("hit") || consequence.equals("sunk")).set_turn(false);
-        } catch (Exception e) { System.out.println("Exception occurred : " + e); }
+        } catch (Exception e) { System.out.println("Exception occurred in FP : " + e); }
     }
 }

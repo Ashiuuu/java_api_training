@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import jdk.jshell.execution.Util;
 
 import java.io.*;
 
@@ -21,14 +20,12 @@ public class StartHandler implements HttpHandler
         if (t.getRequestMethod().equals("POST")) {
             String request = stream_to_string(t.getRequestBody());
             JsonNode jnode = new ObjectMapper().readTree(request);
-            String id = jnode.get("id").asText();
             String url = jnode.get("url").asText();
-            String message = jnode.get("message").asText();
 
             game.newGame().setOpponentAddress(url);
             // TODO : add check to see if request is good
 
-            String body = "{\"id\": \"2\", \"url\": \"" + this.game.getOwnAddress() + "\", \"message\": \"Salut poto\"";
+            String body = "{\"id\": \"2\", \"url\": \"" + this.game.getOwnAddress() + "\", \"message\": \"Salut poto\"}";
             Utilities.sendResponse(t, 202, body);
         }
         else
