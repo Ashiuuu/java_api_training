@@ -67,7 +67,7 @@ public class Launcher
         try {
             BoardPosition pos = findRandomPos(game);
             String cellAlpha = Utilities.translatePosToAlpha(pos);
-            HttpResponse<String> response = Utilities.sendGetRequest(game.getOpponentAddress() + "/api/game/fire?cell=" + cellAlpha);
+            HttpResponse<String> response = Utilities.sendGetRequestWithHeader(game.getOpponentAddress() + "/api/game/fire?cell=" + cellAlpha);
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jnode = mapper.readTree(response.body());
             String consequence = jnode.get("consequence").asText();

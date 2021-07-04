@@ -30,6 +30,15 @@ public class Utilities {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    public static HttpResponse<String> sendGetRequestWithHeader(String u) throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(u))
+            .setHeader("Accept", "application/json")
+            .build();
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
     public static HttpResponse<String> sendPostRequest(String u, String body) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
